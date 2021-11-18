@@ -40,6 +40,12 @@
       "name": "WIKI",
       "projectId": 10,
       "startBlock": 12833319
+    },
+    {
+      "name": "PEOPLE",
+      "projectId": 36,
+      "address": "0x7A58c0Be72BE218B41C608b7Fe7C5bB630736C71", 
+      "startBlock": 13617577
     }
   ]
 }

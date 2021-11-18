@@ -17,3 +17,7 @@ export function handleSHARKTransfer(event: Transfer): void {
 export function handleCNDTransfer(event: Transfer): void {
   handleProjectERC20Transfer(new BigInt(8), event);
 }
+ 
+export function handlePEOPLETransfer(event: Transfer): void {
+  handleProjectERC20Transfer(new BigInt(36), event);
+}
