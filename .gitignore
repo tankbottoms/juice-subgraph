@@ -18,3 +18,5 @@ public/
 subgraph.yaml
 
 src/erc20/**
+
+**.log

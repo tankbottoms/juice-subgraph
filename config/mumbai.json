@@ -1,0 +1,12 @@
+{
+  "network": "mumbai",
+  "address_projects": "0xd1f1587fB359B85dE01a0546acF475cDAA26a824",
+  "startBlock_projects": 25459406,
+  "address_terminalV1": "0xFAAEa4F249e3DD3498c0CB0Df99Dc04e8Da6D032",
+  "startBlock_terminalV1": 25459406,
+  "address_terminalV1_1": "0x252925CdEb4EeD5F84AaF7A858535aBbf71c8597",
+  "startBlock_terminalV1_1": 25459406,
+  "address_ticketBooth": "0xa93dd1f866255fAe105A98431547378CCcb2F8b6",
+  "startBlock_ticketBooth": 25459406,
+  "erc20s": []
+}
