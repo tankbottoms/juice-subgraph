@@ -1,0 +1,12 @@
+{
+  "network": "matic",
+  "address_projects": "0x15f7e95dd9728b3dc2c2598984C6545Fe294694E",
+  "startBlock_projects": 25816181,
+  "address_terminalV1": "0x90D6141FE8265FabeB606b0289aCf9B34c4b5364",
+  "startBlock_terminalV1": 25816214,
+  "address_terminalV1_1": "0x8531461Db8Ad81dEe837A566D2AE3ea7cE8D77E2",
+  "startBlock_terminalV1_1": 25816220,
+  "address_ticketBooth": "0x462FE4D7484B1625c0f2F186A7fa07BDA19D2b05",
+  "startBlock_ticketBooth": 25816192,
+  "erc20s": []
+}
