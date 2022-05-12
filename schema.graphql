@@ -13,12 +13,12 @@ type ProtocolLog @entity {
 }
 
 type _Schema_
-  @fulltext(
-    name: "projectSearch"
-    language: en
-    algorithm: rank
-    include: [{ entity: "Project", fields: [{ name: "handle" }] }]
-  )
+#  @fulltext(
+#    name: "projectSearch"
+#    language: en
+#    algorithm: rank
+#    include: [{ entity: "Project", fields: [{ name: "handle" }] }]
+#  )
 
 #############################################################################
 ############################### vx.x entities ###############################
