@@ -4,7 +4,6 @@ import {
   Participant,
   ProjectEvent,
   ProtocolLog,
-  ProtocolV1Log,
   ProtocolV2Log,
 } from "../generated/schema";
 import { ProjectEventKey } from "./types";
@@ -13,27 +12,19 @@ export const protocolId = "1";
 
 export function updateProtocolEntity(): void {
   const protocol = ProtocolLog.load(protocolId);
-  const protocolV1Log = ProtocolV1Log.load(protocolId);
   const protocolV2Log = ProtocolV2Log.load(protocolId);
 
-  if (protocol && protocolV1Log) {
-    protocol.erc20Count =
-      protocolV1Log.erc20Count + (protocolV2Log ? protocolV2Log.erc20Count : 0);
-    protocol.paymentsCount =
-      protocolV1Log.paymentsCount +
-      (protocolV2Log ? protocolV2Log.paymentsCount : 0);
-    protocol.projectsCount =
-      protocolV1Log.projectsCount +
-      (protocolV2Log ? protocolV2Log.projectsCount : 0);
-    protocol.redeemCount =
-      protocolV1Log.redeemCount +
-      (protocolV2Log ? protocolV2Log.redeemCount : 0);
+  if (protocol) {
+    protocol.erc20Count = protocolV2Log ? protocolV2Log.erc20Count : 0;
+    protocol.paymentsCount = protocolV2Log ? protocolV2Log.paymentsCount : 0;
+    protocol.projectsCount = protocolV2Log ? protocolV2Log.projectsCount : 0;
+    protocol.redeemCount = protocolV2Log ? protocolV2Log.redeemCount : 0;
     protocol.volumePaid = protocolV2Log
-      ? protocolV1Log.volumePaid.plus(protocolV2Log.volumePaid)
-      : protocolV1Log.volumePaid;
+      ? protocolV2Log.volumePaid
+      : BigInt.fromI32(0);
     protocol.volumeRedeemed = protocolV2Log
-      ? protocolV1Log.volumeRedeemed.plus(protocolV2Log.volumePaid)
-      : protocolV1Log.volumeRedeemed;
+      ? protocolV2Log.volumePaid
+      : BigInt.fromI32(0);
     protocol.save();
   }
 }
@@ -102,14 +93,8 @@ export function saveNewProjectEvent(
     case ProjectEventKey.distributeReservedTokensEvent:
       projectEvent.distributeReservedTokensEvent = id;
       break;
-    case ProjectEventKey.distributeToPayoutModEvent:
-      projectEvent.distributeToPayoutModEvent = id;
-      break;
     case ProjectEventKey.distributeToReservedTokenSplitEvent:
       projectEvent.distributeToReservedTokenSplitEvent = id;
-      break;
-    case ProjectEventKey.distributeToTicketModEvent:
-      projectEvent.distributeToTicketModEvent = id;
       break;
     case ProjectEventKey.mintTokensEvent:
       projectEvent.mintTokensEvent = id;
@@ -117,17 +102,11 @@ export function saveNewProjectEvent(
     case ProjectEventKey.payEvent:
       projectEvent.payEvent = id;
       break;
-    case ProjectEventKey.printReservesEvent:
-      projectEvent.printReservesEvent = id;
-      break;
     case ProjectEventKey.projectCreateEvent:
       projectEvent.projectCreateEvent = id;
       break;
     case ProjectEventKey.redeemEvent:
       projectEvent.redeemEvent = id;
-      break;
-    case ProjectEventKey.tapEvent:
-      projectEvent.tapEvent = id;
       break;
     case ProjectEventKey.useAllowanceEvent:
       projectEvent.useAllowanceEvent = id;

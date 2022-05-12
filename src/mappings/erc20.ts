@@ -26,7 +26,6 @@ export function handleERC20Transfer(event: Transfer): void {
 
   if (!receiver) {
     receiver = new Participant(receiverId);
-    receiver.cv = cv;
     receiver.projectId = projectId.toI32();
     receiver.project = projectId.toString();
     receiver.wallet = event.params.to;
