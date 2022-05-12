@@ -10,24 +10,20 @@ import {
   ProjectCreateEvent,
   ProtocolV2Log,
 } from "../../../generated/schema";
-import { CV, ProjectEventKey } from "../../types";
+import { ProjectEventKey } from "../../types";
 import {
-  idForProject,
   idForProjectTx,
   protocolId,
   saveNewProjectEvent,
   updateProtocolEntity,
 } from "../../utils";
 
-const cv: CV = "2";
-
 export function handleCreate(event: Create): void {
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
 
   let project = new Project(projectId);
   if (!project) return;
   project.projectId = event.params.projectId.toI32();
-  project.cv = cv;
   project.owner = event.params.owner;
   project.createdAt = event.block.timestamp;
   project.metadataUri = event.params.metadata.content;
@@ -38,10 +34,9 @@ export function handleCreate(event: Create): void {
   project.save();
 
   let projectCreateEvent = new ProjectCreateEvent(
-    idForProjectTx(event.params.projectId, cv, event)
+    idForProjectTx(event.params.projectId, event)
   );
   if (projectCreateEvent) {
-    projectCreateEvent.cv = cv;
     projectCreateEvent.project = project.id;
     projectCreateEvent.projectId = event.params.projectId.toI32();
     projectCreateEvent.timestamp = event.block.timestamp.toI32();
@@ -53,7 +48,7 @@ export function handleCreate(event: Create): void {
       event,
       event.params.projectId,
       projectCreateEvent.id,
-      cv,
+
       ProjectEventKey.projectCreateEvent
     );
   }
@@ -68,7 +63,7 @@ export function handleCreate(event: Create): void {
 }
 
 export function handleSetMetadata(event: SetMetadata): void {
-  let project = Project.load(idForProject(event.params.projectId, cv));
+  let project = Project.load(event.params.projectId.toString());
   if (!project) return;
   project.metadataUri = event.params.metadata.content;
   project.metadataDomain = event.params.metadata.domain;
@@ -76,7 +71,7 @@ export function handleSetMetadata(event: SetMetadata): void {
 }
 
 export function handleTransferOwnership(event: Transfer): void {
-  let project = Project.load(idForProject(event.params.tokenId, cv));
+  let project = Project.load(event.params.tokenId.toString());
   if (!project) return;
   project.owner = event.params.to;
   project.save();

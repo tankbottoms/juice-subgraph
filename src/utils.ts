@@ -1,6 +1,5 @@
-import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 
-import { TerminalDirectory } from "../generated/Projects/TerminalDirectory";
 import {
   Participant,
   ProjectEvent,
@@ -8,12 +7,7 @@ import {
   ProtocolV1Log,
   ProtocolV2Log,
 } from "../generated/schema";
-import {
-  address_terminalDirectory,
-  address_terminalV1,
-  address_terminalV1_1,
-} from "./contractAddresses";
-import { CV, ProjectEventKey } from "./types";
+import { ProjectEventKey } from "./types";
 
 export const protocolId = "1";
 
@@ -46,12 +40,11 @@ export function updateProtocolEntity(): void {
 
 export function idForProjectTx(
   projectId: BigInt,
-  cv: CV,
   event: ethereum.Event,
   useLogIndex: boolean = false // Using log index will ensure ID is unique even if event is emitted multiple times within a single tx
 ): string {
   return (
-    idForProject(projectId, cv) +
+    projectId.toString() +
     "-" +
     event.transaction.hash.toHexString() +
     (useLogIndex ? "-" + event.logIndex.toString() : "")
@@ -60,29 +53,19 @@ export function idForProjectTx(
 
 function idForProjectEvent(
   projectId: BigInt,
-  cv: CV,
   txHash: Bytes,
   logIndex: BigInt
 ): string {
-  return `${idForProject(
-    projectId,
-    cv
-  )}-${txHash.toHexString().toLowerCase()}-${logIndex.toString()}`;
+  return `${projectId.toString()}-${txHash
+    .toHexString()
+    .toLowerCase()}-${logIndex.toString()}`;
 }
 
 export function idForParticipant(
   projectId: BigInt,
-  cv: CV,
   walletAddress: Bytes
 ): string {
-  return `${idForProject(
-    projectId,
-    cv
-  )}-${walletAddress.toHexString().toLowerCase()}`;
-}
-
-export function idForProject(projectId: BigInt, cv: CV): string {
-  return `${cv[0]}-${projectId.toString()}`;
+  return `${projectId.toString()}-${walletAddress.toHexString().toLowerCase()}`;
 }
 
 export function updateBalance(participant: Participant): void {
@@ -95,22 +78,19 @@ export function saveNewProjectEvent(
   event: ethereum.Event,
   projectId: BigInt,
   id: string,
-  cv: CV,
   key: ProjectEventKey
 ): void {
   let projectEvent = new ProjectEvent(
     idForProjectEvent(
       projectId,
-      cv,
       event.transaction.hash,
       event.transactionLogIndex
     )
   );
   if (!projectEvent) return;
-  projectEvent.cv = cv;
   projectEvent.projectId = projectId.toI32();
   projectEvent.timestamp = event.block.timestamp.toI32();
-  projectEvent.project = idForProject(projectId, cv);
+  projectEvent.project = projectId.toString();
 
   switch (key) {
     case ProjectEventKey.deployedERC20Event:
@@ -155,38 +135,4 @@ export function saveNewProjectEvent(
   }
 
   projectEvent.save();
-}
-
-export function cvForV1Project(projectId: BigInt): CV {
-  log.debug("TerminalDirectory address {}", [address_terminalDirectory]);
-  let terminal = TerminalDirectory.bind(
-    Address.fromString(address_terminalDirectory)
-  );
-  let callResult = terminal.try_terminalOf(projectId);
-
-  if (callResult.reverted) {
-    log.error("terminalOf reverted, project: {}, terminalDirectory: {}", [
-      projectId.toHexString(),
-      address_terminalDirectory,
-    ]);
-    // 0 will always indicate an error
-    return "0";
-  } else {
-    return cvForTerminal(callResult.value);
-  }
-}
-
-export function cvForTerminal(terminal: Address): CV {
-  let _terminal = terminal.toHexString().toLowerCase();
-
-  // Switch statement throws unclear type error in graph compiler, so we use if statements instead
-  if (_terminal == address_terminalV1.toLowerCase()) {
-    return "1";
-  }
-  if (_terminal == address_terminalV1_1.toLowerCase()) {
-    return "1.1";
-  }
-  log.error("Invalid terminal address {}", [_terminal]);
-  // 0 will always indicate an error
-  return "0";
 }

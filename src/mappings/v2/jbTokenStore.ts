@@ -14,10 +14,9 @@ import {
   ProtocolV2Log,
 } from "../../../generated/schema";
 import { ERC20 } from "../../../generated/templates";
-import { CV, ProjectEventKey } from "../../types";
+import { ProjectEventKey } from "../../types";
 import {
   idForParticipant,
-  idForProject,
   idForProjectTx,
   protocolId,
   saveNewProjectEvent,
@@ -25,14 +24,8 @@ import {
   updateProtocolEntity,
 } from "../../utils";
 
-const cv: CV = "2";
-
 export function handleBurn(event: Burn): void {
-  let holderId = idForParticipant(
-    event.params.projectId,
-    cv,
-    event.params.holder
-  );
+  let holderId = idForParticipant(event.params.projectId, event.params.holder);
   let participant = Participant.load(holderId);
 
   if (!participant) return;
@@ -60,7 +53,7 @@ export function handleBurn(event: Burn): void {
 
 export function handleClaim(event: Claim): void {
   let participant = Participant.load(
-    idForParticipant(event.params.projectId, cv, event.params.holder)
+    idForParticipant(event.params.projectId, event.params.holder)
   );
 
   if (participant) {
@@ -75,18 +68,17 @@ export function handleClaim(event: Claim): void {
 }
 
 export function handleIssue(event: Issue): void {
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   let project = Project.load(projectId);
 
   if (!project) return;
 
   let deployedERC20Event = new DeployedERC20Event(
-    idForProjectTx(event.params.projectId, cv, event)
+    idForProjectTx(event.params.projectId, event)
   );
   if (deployedERC20Event) {
     deployedERC20Event.project = project.id;
     deployedERC20Event.projectId = project.projectId;
-    deployedERC20Event.cv = cv;
     deployedERC20Event.symbol = event.params.symbol;
     deployedERC20Event.address = event.params.token;
     deployedERC20Event.timestamp = event.block.timestamp.toI32();
@@ -97,7 +89,7 @@ export function handleIssue(event: Issue): void {
       event,
       event.params.projectId,
       deployedERC20Event.id,
-      cv,
+
       ProjectEventKey.deployedERC20Event
     );
   }
@@ -122,16 +114,15 @@ export function handleMint(event: Mint): void {
 
   let receiverId = idForParticipant(
     event.params.projectId,
-    cv,
+
     event.params.holder
   );
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   let receiver = Participant.load(receiverId);
 
   if (!receiver) {
     receiver = new Participant(receiverId);
     receiver.project = projectId;
-    receiver.cv = cv;
     receiver.projectId = event.params.projectId.toI32();
     receiver.wallet = event.params.holder;
     receiver.stakedBalance = BigInt.fromString("0");
@@ -148,13 +139,13 @@ export function handleMint(event: Mint): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   let project = Project.load(projectId);
 
   if (!project) return;
 
   let sender = Participant.load(
-    idForParticipant(event.params.projectId, cv, event.params.holder)
+    idForParticipant(event.params.projectId, event.params.holder)
   );
 
   if (sender) {
@@ -167,7 +158,7 @@ export function handleTransfer(event: Transfer): void {
 
   let receiverId = idForParticipant(
     event.params.projectId,
-    cv,
+
     event.params.recipient
   );
 
@@ -176,7 +167,6 @@ export function handleTransfer(event: Transfer): void {
   if (!receiver) {
     receiver = new Participant(receiverId);
     receiver.project = project.id;
-    receiver.cv = cv;
     receiver.projectId = project.projectId;
     receiver.wallet = event.params.recipient;
     receiver.stakedBalance = BigInt.fromString("0");

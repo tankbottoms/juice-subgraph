@@ -8,18 +8,16 @@ import {
   DistributeToReservedTokenSplitEvent,
   MintTokensEvent,
 } from "../../../generated/schema";
-import { CV, ProjectEventKey } from "../../types";
-import { idForProject, idForProjectTx, saveNewProjectEvent } from "../../utils";
-
-const cv: CV = "2";
+import { ProjectEventKey } from "../../types";
+import { idForProjectTx, saveNewProjectEvent } from "../../utils";
 
 export function handleMintTokens(event: MintTokens): void {
   // Note: Receiver balance is updated in the jbTokenStore event handler
 
   let mintTokensEvent = new MintTokensEvent(
-    idForProjectTx(event.params.projectId, cv, event, true)
+    idForProjectTx(event.params.projectId, event, true)
   );
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   if (!mintTokensEvent) return;
   mintTokensEvent.projectId = event.params.projectId.toI32();
   mintTokensEvent.amount = event.params.tokenCount;
@@ -35,7 +33,7 @@ export function handleMintTokens(event: MintTokens): void {
     event,
     event.params.projectId,
     mintTokensEvent.id,
-    cv,
+
     ProjectEventKey.mintTokensEvent
   );
 }
@@ -43,9 +41,9 @@ export function handleMintTokens(event: MintTokens): void {
 export function handleDistributeReservedTokens(
   event: DistributeReservedTokens
 ): void {
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   let distributeReservedTokensEvent = new DistributeReservedTokensEvent(
-    idForProjectTx(event.params.projectId, cv, event)
+    idForProjectTx(event.params.projectId, event)
   );
 
   if (!distributeReservedTokensEvent) return;
@@ -66,7 +64,7 @@ export function handleDistributeReservedTokens(
     event,
     event.params.projectId,
     distributeReservedTokensEvent.id,
-    cv,
+
     ProjectEventKey.distributeReservedTokensEvent
   );
 }
@@ -74,15 +72,15 @@ export function handleDistributeReservedTokens(
 export function handleDistributeToReservedTokenSplit(
   event: DistributeToReservedTokenSplit
 ): void {
-  let projectId = idForProject(event.params.projectId, cv);
+  let projectId = event.params.projectId.toString();
   let distributeReservedTokenSplitEvent = new DistributeToReservedTokenSplitEvent(
-    idForProjectTx(event.params.projectId, cv, event, true)
+    idForProjectTx(event.params.projectId, event, true)
   );
 
   if (!distributeReservedTokenSplitEvent) return;
   distributeReservedTokenSplitEvent.distributeReservedTokensEvent = idForProjectTx(
     event.params.projectId,
-    cv,
+
     event
   );
   distributeReservedTokenSplitEvent.project = projectId;
@@ -105,7 +103,7 @@ export function handleDistributeToReservedTokenSplit(
     event,
     event.params.projectId,
     distributeReservedTokenSplitEvent.id,
-    cv,
+
     ProjectEventKey.distributeToReservedTokenSplitEvent
   );
 }
